@@ -1,4 +1,6 @@
+
 {% extends 'base.html' %}
+{% load socialaccount %}
 
 {% block title %}
 Login | SkillTrack Maharashtra
@@ -26,10 +28,7 @@ Login | SkillTrack Maharashtra
         box-shadow: 0 15px 45px rgba(15, 23, 42, 0.10);
     }
 
-
-    /* =========================
-       HEADER
-       ========================= */
+    /* HEADER */
 
     .login-header {
         text-align: center;
@@ -74,10 +73,7 @@ Login | SkillTrack Maharashtra
         line-height: 1.5;
     }
 
-
-    /* =========================
-       FORM
-       ========================= */
+    /* FORM */
 
     .login-form {
         margin-top: 20px;
@@ -125,10 +121,7 @@ Login | SkillTrack Maharashtra
         color: #94a3b8;
     }
 
-
-    /* =========================
-       LOGIN BUTTON
-       ========================= */
+    /* LOGIN BUTTON */
 
     .login-button {
         width: 100%;
@@ -165,10 +158,85 @@ Login | SkillTrack Maharashtra
             0 8px 20px rgba(37, 99, 235, 0.22);
     }
 
+    /* GOOGLE LOGIN */
 
-    /* =========================
-       ERROR / MESSAGES
-       ========================= */
+    .oauth-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        margin: 20px 0;
+
+        color: #94a3b8;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .oauth-divider::before,
+    .oauth-divider::after {
+        content: "";
+
+        flex: 1;
+
+        height: 1px;
+
+        background: #e2e8f0;
+    }
+
+    .google-login-button {
+        width: 100%;
+        min-height: 45px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+
+        background: #ffffff;
+        color: #1f2937;
+
+        text-decoration: none;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        transition:
+            background 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .google-login-button:hover {
+        background: #f8fafc;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 6px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .google-icon {
+        width: 22px;
+        height: 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 17px;
+        font-weight: 800;
+
+        color: #4285f4;
+    }
+
+    /* ERROR / MESSAGES */
 
     .messages {
         margin-bottom: 18px;
@@ -202,10 +270,7 @@ Login | SkillTrack Maharashtra
         font-size: 12px;
     }
 
-
-    /* =========================
-       REGISTRATION SECTION
-       ========================= */
+    /* REGISTRATION SECTION */
 
     .registration-divider {
         display: flex;
@@ -257,10 +322,7 @@ Login | SkillTrack Maharashtra
         font-size: 12px;
     }
 
-
-    /* =========================
-       REGISTRATION CARDS
-       ========================= */
+    /* REGISTRATION CARDS */
 
     .registration-options {
         display: grid;
@@ -346,10 +408,31 @@ Login | SkillTrack Maharashtra
         text-align: center;
     }
 
+    /* PROVIDER LINK */
 
-    /* =========================
-       FOOTER
-       ========================= */
+    .provider-register {
+        grid-column: 1 / -1;
+
+        display: block;
+
+        margin-top: 2px;
+
+        text-align: center;
+
+        color: #2563eb;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+    .provider-register:hover {
+        text-decoration: underline;
+    }
+
+    /* FOOTER */
 
     .login-footer {
         margin-top: 25px;
@@ -365,10 +448,7 @@ Login | SkillTrack Maharashtra
         font-size: 10px;
     }
 
-
-    /* =========================
-       MOBILE
-       ========================= */
+    /* MOBILE */
 
     @media (max-width: 600px) {
 
@@ -389,6 +469,10 @@ Login | SkillTrack Maharashtra
             grid-template-columns: 1fr;
         }
 
+        .provider-register {
+            grid-column: auto;
+        }
+
     }
 
 </style>
@@ -398,10 +482,7 @@ Login | SkillTrack Maharashtra
 
     <div class="login-card">
 
-
-        <!-- =========================
-             LOGIN HEADER
-             ========================= -->
+        <!-- LOGIN HEADER -->
 
         <div class="login-header">
 
@@ -420,9 +501,7 @@ Login | SkillTrack Maharashtra
         </div>
 
 
-        <!-- =========================
-             DJANGO MESSAGES
-             ========================= -->
+        <!-- DJANGO MESSAGES -->
 
         {% if messages %}
 
@@ -441,9 +520,7 @@ Login | SkillTrack Maharashtra
         {% endif %}
 
 
-        <!-- =========================
-             LOGIN FORM
-             ========================= -->
+        <!-- EXISTING LOGIN FORM -->
 
         <form
             method="post"
@@ -452,13 +529,10 @@ Login | SkillTrack Maharashtra
 
             {% csrf_token %}
 
-
             {% if form.non_field_errors %}
 
                 <div class="form-errors">
-
                     {{ form.non_field_errors }}
-
                 </div>
 
             {% endif %}
@@ -505,7 +579,7 @@ Login | SkillTrack Maharashtra
             </div>
 
 
-            <!-- LOGIN -->
+            <!-- EXISTING LOGIN -->
 
             <button
                 type="submit"
@@ -517,18 +591,27 @@ Login | SkillTrack Maharashtra
         </form>
 
 
-        <!-- =========================
-             REGISTRATION DIVIDER
-             ========================= -->
+        <!-- GOOGLE LOGIN -->
+
+        <div class="oauth-divider">
+            <span>OR</span>
+        </div>
+
+        {% load socialaccount %}
+
+<form method="post" action="{% provider_login_url 'google' %}">
+  {% csrf_token %}
+  <button type="submit">Continue with Google</button>
+</form>
+
+        <!-- REGISTRATION DIVIDER -->
 
         <div class="registration-divider">
             New applicant?
         </div>
 
 
-        <!-- =========================
-             REGISTRATION HEADING
-             ========================= -->
+        <!-- REGISTRATION HEADING -->
 
         <div class="registration-heading">
 
@@ -543,12 +626,9 @@ Login | SkillTrack Maharashtra
         </div>
 
 
-        <!-- =========================
-             REGISTRATION OPTIONS
-             ========================= -->
+        <!-- REGISTRATION OPTIONS -->
 
         <div class="registration-options">
-
 
             <!-- TRAINEE -->
 
@@ -591,19 +671,22 @@ Login | SkillTrack Maharashtra
                     Register as a training professional
                 </span>
 
-                </a>
+            </a>
 
-                <a href="{% url 'provider_register' %}">
-                    Register a training provider
-                </a>
 
+            <!-- PROVIDER -->
+
+            <a
+                href="{% url 'provider_register' %}"
+                class="provider-register"
+            >
+                Register a training provider
+            </a>
 
         </div>
 
 
-        <!-- =========================
-             FOOTER
-             ========================= -->
+        <!-- FOOTER -->
 
         <div class="login-footer">
 
@@ -611,10 +694,10 @@ Login | SkillTrack Maharashtra
 
         </div>
 
-
     </div>
 
 </div>
 
 
 {% endblock %}
+

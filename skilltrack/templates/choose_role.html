@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose Registration Type</title>
+</head>
+<body>
+
+    <h2>Welcome to SkillTrack Maharashtra</h2>
+    <p>Please choose how you want to register.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <button type="submit" name="role" value="Trainee">
+            Register as Trainee
+        </button>
+
+        <button type="submit" name="role" value="Trainer">
+            Register as Trainer
+        </button>
+    </form>
+
+</body>
+</html>

@@ -454,31 +454,31 @@ class TrainingPerformance(models.Model):
         related_name="performance"
     )
 
-    # Attendance
+
     total_classes = models.PositiveIntegerField(default=0)
     attended_classes = models.PositiveIntegerField(default=0)
     attendance_percentage = models.FloatField(default=0)
 
-    # Assignments
+
     total_assignments = models.PositiveIntegerField(default=0)
     completed_assignments = models.PositiveIntegerField(default=0)
     assignment_score = models.FloatField(default=0)
 
-    # Assessments
+
     total_assessments = models.PositiveIntegerField(default=0)
     completed_assessments = models.PositiveIntegerField(default=0)
     assessment_score = models.FloatField(default=0)
 
-    # Practical / Skill evaluation
+
     practical_score = models.FloatField(default=0)
 
-    # Overall training progress
+
     progress_percentage = models.FloatField(default=0)
 
-    # Final performance
+
     final_score = models.FloatField(default=0)
 
-    # Trainer remarks
+
     trainer_remarks = models.TextField(blank=True)
 
     updated_at = models.DateTimeField(auto_now=True)
