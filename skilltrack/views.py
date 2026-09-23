@@ -4113,3 +4113,6 @@ def choose_role(request):
         return redirect("pending_page")
 
     return render(request, "choose_role.html")
+@login_required
+def pending_page(request):
+    return render(request, "pending_page.html")
