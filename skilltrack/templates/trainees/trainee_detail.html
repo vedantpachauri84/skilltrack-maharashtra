@@ -3,6 +3,199 @@
 {% block content %}
 
 <!-- =====================================================
+     TRAINEE DETAILS
+     ===================================================== -->
+
+<div style="
+    background: #ffffff;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(16, 24, 40, 0.05);
+">
+
+    <h2 style="
+        margin: 0 0 18px;
+        font-size: 18px;
+        color: #101828;
+    ">
+        Trainee Details
+    </h2>
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    ">
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Name
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.name }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Beneficiary ID
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.beneficiary_id }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Phone
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.phone }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Email
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.email|default:"Not provided" }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                District
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.district }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Qualification
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.qualification }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Gender
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.gender }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Registration Date
+            </div>
+            <div style="font-size:13px;color:#101828;font-weight:700;margin-top:4px;">
+                {{ trainee.registration_date|date:"d M Y" }}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:11px;color:#667085;font-weight:600;">
+                Status
+            </div>
+
+            <div style="margin-top:4px;">
+
+                {% if trainee.status == "Pending" %}
+
+                    <span style="
+                        display:inline-block;
+                        padding:5px 10px;
+                        border-radius:999px;
+                        background:#fffaeb;
+                        color:#b54708;
+                        font-size:11px;
+                        font-weight:800;
+                    ">
+                        Pending
+                    </span>
+
+                    <form method="post"
+                          action="{% url 'reject_trainee' trainee.id %}"
+                          style="display:inline-block; margin-left:10px;">
+
+                        {% csrf_token %}
+
+                        <button type="submit"
+                                style="
+                                    background:#dc3545;
+                                    color:white;
+                                    border:none;
+                                    padding:11px 18px;
+                                    border-radius:8px;
+                                    font-weight:700;
+                                    cursor:pointer;
+                                ">
+                            ✕ Reject Trainee
+                        </button>
+
+                    </form>
+
+                {% elif trainee.status == "Verified" %}
+
+                    <span style="
+                        display:inline-block;
+                        padding:5px 10px;
+                        border-radius:999px;
+                        background:#ecfdf3;
+                        color:#067647;
+                        font-size:11px;
+                        font-weight:800;
+                    ">
+                        Verified
+                    </span>
+
+                {% elif trainee.status == "Rejected" %}
+
+                    <span style="
+                        display:inline-block;
+                        padding:5px 10px;
+                        border-radius:999px;
+                        background:#fef3f2;
+                        color:#b42318;
+                        font-size:11px;
+                        font-weight:800;
+                    ">
+                        Rejected
+                    </span>
+
+                {% else %}
+
+                    <span style="
+                        display:inline-block;
+                        padding:5px 10px;
+                        border-radius:999px;
+                        background:#f2f4f7;
+                        color:#475467;
+                        font-size:11px;
+                        font-weight:800;
+                    ">
+                        {{ trainee.status }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
      TRAINEE VERIFICATION STATUS
      ===================================================== -->
 
@@ -33,6 +226,7 @@
 
     <form method="post"
           action="{% url 'verify_trainee' trainee.id %}">
+
         {% csrf_token %}
 
         <button type="submit"
@@ -52,6 +246,33 @@
 
 </div>
 
+{% elif trainee.status == "Rejected" %}
+
+<div style="
+    background: #fef3f2;
+    border: 1px solid #fecdca;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    color: #b42318;
+">
+
+    <h3 style="
+        margin: 0 0 8px;
+        color: #b42318;
+    ">
+        Registration Rejected
+    </h3>
+
+    <p style="
+        margin: 0;
+        color: #667085;
+    ">
+        This trainee registration has been rejected by the Authority.
+    </p>
+
+</div>
+
 {% elif trainee.status == "Verified" %}
 
 <div style="
@@ -68,11 +289,19 @@
 {% endif %}
 
 
+<!-- =====================================================
+     ONLY VERIFIED TRAINEES SEE AI DASHBOARD
+     ===================================================== -->
+
+{% if trainee.status == "Verified" %}
+
+
 <!-- ========================= -->
 <!-- AI INSIGHTS DASHBOARD -->
 <!-- ========================= -->
 
 <style>
+
     .ai-dashboard {
         margin-bottom: 34px;
         font-family: inherit;
@@ -205,8 +434,18 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
         background: conic-gradient(
-            {% if risk.risk == "High" %}#d92d20{% elif risk.risk == "Medium" %}#dc6803{% elif risk.risk == "Low" %}#0e9384{% else %}#667085{% endif %} {{ risk.probability|default:0 }}%,
+            {% if risk.risk == "High" %}
+                #d92d20
+            {% elif risk.risk == "Medium" %}
+                #dc6803
+            {% elif risk.risk == "Low" %}
+                #0e9384
+            {% else %}
+                #667085
+            {% endif %}
+            {{ risk.probability|default:0 }}%,
             #f2f4f7 0
         );
     }
@@ -254,20 +493,20 @@
         border-radius: 999px;
 
         {% if risk.risk == "High" %}
-        background: #fef3f2;
-        color: #b42318;
+            background: #fef3f2;
+            color: #b42318;
 
         {% elif risk.risk == "Medium" %}
-        background: #fffaeb;
-        color: #b54708;
+            background: #fffaeb;
+            color: #b54708;
 
         {% elif risk.risk == "Low" %}
-        background: #ecfdf3;
-        color: #067647;
+            background: #ecfdf3;
+            color: #067647;
 
         {% else %}
-        background: #f2f4f7;
-        color: #475467;
+            background: #f2f4f7;
+            color: #475467;
         {% endif %}
 
         font-size: 11px;
@@ -286,6 +525,7 @@
         position: relative;
         height: 10px;
         border-radius: 999px;
+
         background: linear-gradient(
             90deg,
             #0e9384 0%,
@@ -599,20 +839,20 @@
         border-radius: 11px;
 
         {% if risk.risk == "High" %}
-        background: #fef3f2;
-        border: 1px solid #fecdca;
+            background: #fef3f2;
+            border: 1px solid #fecdca;
 
         {% elif risk.risk == "Medium" %}
-        background: #fffaeb;
-        border: 1px solid #fedf89;
+            background: #fffaeb;
+            border: 1px solid #fedf89;
 
         {% elif risk.risk == "Low" %}
-        background: #ecfdf3;
-        border: 1px solid #abefc6;
+            background: #ecfdf3;
+            border: 1px solid #abefc6;
 
         {% else %}
-        background: #f9fafb;
-        border: 1px solid #eaecf0;
+            background: #f9fafb;
+            border: 1px solid #eaecf0;
         {% endif %}
     }
 
@@ -620,16 +860,16 @@
         display: block;
 
         {% if risk.risk == "High" %}
-        color: #b42318;
+            color: #b42318;
 
         {% elif risk.risk == "Medium" %}
-        color: #b54708;
+            color: #b54708;
 
         {% elif risk.risk == "Low" %}
-        color: #067647;
+            color: #067647;
 
         {% else %}
-        color: #344054;
+            color: #344054;
         {% endif %}
 
         font-size: 13px;
@@ -681,6 +921,7 @@
     ===================================================== */
 
     @media (max-width: 1100px) {
+
         .ai-top-grid {
             grid-template-columns: 1fr 1fr;
         }
@@ -692,9 +933,11 @@
         .decision-actions {
             grid-template-columns: 1fr;
         }
+
     }
 
     @media (max-width: 700px) {
+
         .ai-top-grid {
             grid-template-columns: 1fr;
         }
@@ -709,7 +952,17 @@
             align-items: flex-start;
             gap: 12px;
         }
+
     }
+
+    @media (max-width: 700px) {
+
+        div[style*="grid-template-columns: repeat(3, 1fr)"] {
+            grid-template-columns: 1fr !important;
+        }
+
+    }
+
 </style>
 
 
@@ -720,18 +973,24 @@
     <!-- ========================= -->
 
     <div class="ai-dashboard-title">
+
         <div>
-            <h2>AI Employment Intelligence</h2>
+
+            <h2>
+                AI Employment Intelligence
+            </h2>
 
             <p>
                 Data-driven assessment of employment readiness,
                 skill gaps and recommended intervention.
             </p>
+
         </div>
 
         <span class="ai-powered">
             AI Powered
         </span>
+
     </div>
 
 
@@ -741,6 +1000,7 @@
 
     <div class="ai-top-grid">
 
+
         <!-- RISK CARD -->
 
         <div class="ai-card risk-card">
@@ -748,12 +1008,17 @@
             <div class="ai-card-header">
 
                 <span class="ai-card-title">
+
                     <span class="title-dot"></span>
+
                     Employment risk
+
                 </span>
 
                 <span class="risk-badge">
+
                     {{ risk.risk|default:"Unknown" }} risk
+
                 </span>
 
             </div>
@@ -791,7 +1056,9 @@
                     </p>
 
                     <span class="risk-badge">
+
                         {{ risk.risk|default:"Unknown" }} risk
+
                     </span>
 
                 </div>
@@ -808,9 +1075,11 @@
                 </div>
 
                 <div class="risk-meter-scale">
+
                     <span>Low</span>
                     <span>Medium</span>
                     <span>High</span>
+
                 </div>
 
             </div>
@@ -825,8 +1094,11 @@
             <div class="ai-card-header">
 
                 <span class="ai-card-title">
+
                     <span class="title-dot"></span>
+
                     Skill gap analysis
+
                 </span>
 
             </div>
@@ -855,7 +1127,9 @@
                 <div class="gap-volume-track">
 
                     <div class="gap-volume-fill"
-                         style="width: {% widthratio risk.skill_gaps|length 8 100 %}%;"></div>
+                         style="width: {% widthratio risk.skill_gaps|length 8 100 %}%;">
+
+                    </div>
 
                 </div>
 
@@ -879,7 +1153,9 @@
             {% else %}
 
                 <div class="no-gap">
+
                     ✓ No major skill gaps detected
+
                 </div>
 
             {% endif %}
@@ -894,8 +1170,11 @@
             <div class="ai-card-header">
 
                 <span class="ai-card-title">
+
                     <span class="title-dot"></span>
+
                     Recommended intervention
+
                 </span>
 
             </div>
@@ -910,11 +1189,15 @@
                         <div class="recommendation-item">
 
                             <div class="recommendation-number">
+
                                 {{ forloop.counter }}
+
                             </div>
 
                             <div class="recommendation-text">
+
                                 {{ recommendation }}
+
                             </div>
 
                         </div>
@@ -932,7 +1215,9 @@
                     </div>
 
                     <div class="recommendation-text">
+
                         {{ risk.action }}
+
                     </div>
 
                 </div>
@@ -940,7 +1225,9 @@
             {% else %}
 
                 <div class="empty-recommendation">
+
                     No intervention recommendation available.
+
                 </div>
 
             {% endif %}
@@ -956,6 +1243,7 @@
 
     <div class="ai-mid-grid">
 
+
         <!-- RISK ZONE -->
 
         <div class="ai-card">
@@ -963,14 +1251,18 @@
             <div class="ai-card-header">
 
                 <span class="ai-card-title">
+
                     <span class="title-dot"></span>
+
                     Risk zone position
+
                 </span>
 
             </div>
 
 
             <div class="zone-row">
+
 
                 <div class="zone-item {% if risk.risk == "Low" %}active{% endif %}">
 
@@ -981,7 +1273,17 @@
                     <div class="zone-track">
 
                         <div class="zone-fill low"
-                             style="width: {% if risk.risk == "Low" %}{{ risk.probability|default:0 }}{% else %}0{% endif %}%;"></div>
+
+                             style="
+                                width:
+                                {% if risk.risk == "Low" %}
+                                    {{ risk.probability|default:0 }}
+                                {% else %}
+                                    0
+                                {% endif %}%;
+                             ">
+
+                        </div>
 
                     </div>
 
@@ -997,7 +1299,17 @@
                     <div class="zone-track">
 
                         <div class="zone-fill medium"
-                             style="width: {% if risk.risk == "Medium" %}{{ risk.probability|default:0 }}{% else %}0{% endif %}%;"></div>
+
+                             style="
+                                width:
+                                {% if risk.risk == "Medium" %}
+                                    {{ risk.probability|default:0 }}
+                                {% else %}
+                                    0
+                                {% endif %}%;
+                             ">
+
+                        </div>
 
                     </div>
 
@@ -1013,7 +1325,17 @@
                     <div class="zone-track">
 
                         <div class="zone-fill high"
-                             style="width: {% if risk.risk == "High" %}{{ risk.probability|default:0 }}{% else %}0{% endif %}%;"></div>
+
+                             style="
+                                width:
+                                {% if risk.risk == "High" %}
+                                    {{ risk.probability|default:0 }}
+                                {% else %}
+                                    0
+                                {% endif %}%;
+                             ">
+
+                        </div>
 
                     </div>
 
@@ -1031,14 +1353,18 @@
             <div class="ai-card-header">
 
                 <span class="ai-card-title">
+
                     <span class="title-dot"></span>
+
                     Gaps vs. interventions
+
                 </span>
 
             </div>
 
 
             <div class="compare-row">
+
 
                 <div>
 
@@ -1058,7 +1384,14 @@
                     <div class="compare-track">
 
                         <div class="compare-fill gaps"
-                             style="width: {% widthratio risk.skill_gaps|length 8 100 %}%;"></div>
+
+                             style="
+                                width:
+                                {% widthratio risk.skill_gaps|length 8 100 %}
+                                %;
+                             ">
+
+                        </div>
 
                     </div>
 
@@ -1083,7 +1416,14 @@
                     <div class="compare-track">
 
                         <div class="compare-fill recs"
-                             style="width: {% widthratio risk.recommendations|length 8 100 %}%;"></div>
+
+                             style="
+                                width:
+                                {% widthratio risk.recommendations|length 8 100 %}
+                                %;
+                             ">
+
+                        </div>
 
                     </div>
 
@@ -1135,14 +1475,17 @@
 
 
                 <span>
+
                     AI insights can guide the next support
                     or placement decision.
+
                 </span>
 
             </div>
 
 
             <div class="decision-actions">
+
 
                 <div class="decision-action">
 
@@ -1176,6 +1519,7 @@
 
                 </div>
 
+
             </div>
 
         </div>
@@ -1183,5 +1527,8 @@
     </div>
 
 </div>
+
+
+{% endif %}
 
 {% endblock %}

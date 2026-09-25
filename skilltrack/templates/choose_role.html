@@ -1,24 +1,212 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Choose Registration Type</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Choose Registration Type | SkillTrack Maharashtra</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f4f7fb, #e8eef7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 50px 45px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.10);
+            text-align: center;
+        }
+
+        .header-line {
+            width: 70px;
+            height: 5px;
+            background: #8b1e2d;
+            margin: 0 auto 20px;
+            border-radius: 5px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #102a43;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 38px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .option-card {
+            width: 300px;
+            padding: 30px 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            background: #ffffff;
+            transition: 0.3s ease;
+        }
+
+        .option-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+            border-color: #8b1e2d;
+        }
+
+        .icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            background: #f3e8ea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .option-card h3 {
+            color: #102a43;
+            font-size: 21px;
+            margin-bottom: 10px;
+        }
+
+        .option-card p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #8b1e2d;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background: #6f1724;
+            transform: scale(1.02);
+        }
+
+        .trainer button {
+            background: #d28b00;
+        }
+
+        .trainer button:hover {
+            background: #b87500;
+        }
+
+        .footer {
+            margin-top: 35px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                padding: 35px 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .option-card {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h2>Welcome to SkillTrack Maharashtra</h2>
-    <p>Please choose how you want to register.</p>
+    <div class="container">
 
-    <form method="POST">
-        {% csrf_token %}
+        <div class="header-line"></div>
 
-        <button type="submit" name="role" value="Trainee">
-            Register as Trainee
-        </button>
+        <h1>Welcome to SkillTrack Maharashtra</h1>
 
-        <button type="submit" name="role" value="Trainer">
-            Register as Trainer
-        </button>
-    </form>
+        <p class="subtitle">
+            Please select your registration type to continue.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="options">
+
+                <!-- Trainee -->
+                <div class="option-card">
+                    <div class="icon">🎓</div>
+
+                    <h3>Trainee</h3>
+
+                    <p>
+                        Register as a trainee to access skill development
+                        and training opportunities.
+                    </p>
+
+                    <button type="submit" name="role" value="Trainee">
+                        Register as Trainee
+                    </button>
+                </div>
+
+                <!-- Trainer -->
+                <div class="option-card trainer">
+                    <div class="icon">👨‍🏫</div>
+
+                    <h3>Trainer</h3>
+
+                    <p>
+                        Register as a trainer to provide training and
+                        support skill development programs.
+                    </p>
+
+                    <button type="submit" name="role" value="Trainer">
+                        Register as Trainer
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <div class="footer">
+            SkillTrack Maharashtra • Skill Development & Employment Tracking
+        </div>
+
+    </div>
 
 </body>
 </html>
+

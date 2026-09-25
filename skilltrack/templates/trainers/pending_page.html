@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Application Pending | SkillTrack Maharashtra</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f4f7fb, #e8eef7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 650px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 50px 45px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.10);
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            background: #fff4d6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+        }
+
+        .header-line {
+            width: 70px;
+            height: 5px;
+            background: #d28b00;
+            margin: 0 auto 20px;
+            border-radius: 5px;
+        }
+
+        h1 {
+            color: #102a43;
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            font-size: 17px;
+            color: #166534;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .message {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .notice {
+            margin: 28px 0;
+            padding: 18px;
+            background: #fff8e7;
+            border-left: 4px solid #d28b00;
+            border-radius: 8px;
+            color: #6b5200;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .login-btn {
+            display: inline-block;
+            padding: 13px 35px;
+            background: #8b1e2d;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #6f1724;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 35px 22px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="status-icon">
+            ⏳
+        </div>
+
+        <div class="header-line"></div>
+
+        <h1>Registration Submitted</h1>
+
+        <p class="success-message">
+            Your trainer registration was submitted successfully.
+        </p>
+
+        <p class="message">
+            Your application is currently pending Authority verification.
+        </p>
+
+        <div class="notice">
+            <strong>What happens next?</strong><br>
+            The Authority will review your registration. Once your
+            application is approved, you will be able to access your
+            Trainer Dashboard.
+        </div>
+
+        <a href="{% url 'login' %}" class="login-btn">
+            Go to Login
+        </a>
+
+        <div class="footer">
+            SkillTrack Maharashtra • Skill Development & Employment Tracking
+        </div>
+
+    </div>
+
+</body>
+</html>
+

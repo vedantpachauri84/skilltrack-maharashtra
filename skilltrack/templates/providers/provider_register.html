@@ -1,15 +1,38 @@
+
 {% extends "base.html" %}
-{% block content %}
+
+{% block public_content %}
+
 <div class="card" style="max-width: 680px; margin: 2rem auto;">
-  <h1>Training Provider Registration</h1>
-  <p class="sub">Submit your organisation for Authority verification before it can be assigned to an official batch.</p>
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    {% for field in form %}
-      <p>{{ field.label_tag }} {{ field }} {{ field.errors }}</p>
-    {% endfor %}
-    <button class="btn" type="submit">Submit registration</button>
-  </form>
+
+    <h1>Training Provider Registration</h1>
+
+    <p class="sub">
+        Submit your organisation for Authority verification before it can
+        be assigned to an official batch.
+    </p>
+
+    <form method="post" novalidate>
+
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <p>
+                {{ field.label_tag }}
+                {{ field }}
+                {{ field.errors }}
+            </p>
+        {% endfor %}
+
+        <button class="btn" type="submit">
+            Submit registration
+        </button>
+
+    </form>
+
 </div>
+
 {% endblock %}
+

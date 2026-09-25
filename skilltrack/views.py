@@ -74,14 +74,17 @@ def has_role(user, role):
 
 
 def is_approved_trainer(user):
-    """Only an Authority-approved trainer may operate trainer workflows."""
-    return (
-        user.is_authenticated
-        and (
-            user.is_staff
-            or TrainerRegistration.objects.filter(user=user, status="Verified").exists()
-        )
-    )
+    """Return True only when the current user has a verified trainer registration."""
+    if not user.is_authenticated:
+        return False
+
+    if user.is_staff:
+        return True
+
+    return TrainerRegistration.objects.filter(
+        user=user,
+        status="Verified"
+    ).exists()
 
 
 def authority_required(view):
@@ -508,12 +511,10 @@ def generate_followups(batch):
 # LOGIN / LOGOUT
 # ==========================================================
 
-def redirect_for_user(user):
-
+def redirect_for_user(user, request):
     profile = getattr(user, "userprofile", None)
 
-    # New Google/social user
-    # No SkillTrack role/profile yet → choose registration type
+
     if profile is None or not profile.role:
         return redirect("choose_role")
 
@@ -522,22 +523,28 @@ def redirect_for_user(user):
     if user.is_staff or role == "Authority":
         return redirect("dashboard")
 
+
     if role == "Trainer":
         if is_approved_trainer(user):
             return redirect("trainer_dashboard")
 
-        messages.error(None,"Your trainer registration is still pending Authority approval.")
-        return redirect("login")
+        messages.info(
+            request,
+            "Your trainer registration is still pending Authority approval."
+        )
+        return redirect("pending_page")
+
 
     if role == "Trainee":
         return redirect("trainee_dashboard")
+
 
     return redirect("login")
 
 def login_view(request):
 
     if request.user.is_authenticated:
-        return redirect_for_user(request.user)
+        return redirect_for_user(request.user, request)
 
     if request.method == "POST":
 
@@ -548,14 +555,8 @@ def login_view(request):
         )
 
         if user:
-            if (
-                getattr(getattr(user, "userprofile", None), "role", None) == "Trainer"
-                and not is_approved_trainer(user)
-            ):
-                messages.error(request, "Your trainer registration is still pending Authority approval.")
-                return render(request, "login.html")
             login(request, user)
-            return redirect_for_user(user)
+            return redirect_for_user(user, request)
 
         messages.error(
             request,
@@ -578,16 +579,18 @@ def logout_view(request):
 # ==========================================================
 
 
-@login_required
+
+
 def trainee_register(request):
 
     user = request.user
 
     # Existing SkillTrack trainee
-    profile = getattr(user, "userprofile", None)
+    if user.is_authenticated:
+        profile = getattr(user, "userprofile", None)
 
-    if profile and profile.role == "Trainee" and profile.trainee:
-        return redirect_for_user(user)
+        if profile and profile.role == "Trainee" and profile.trainee:
+            return redirect_for_user(user, request)
 
     form = TraineeForm(request.POST or None)
 
@@ -616,25 +619,30 @@ def trainee_register(request):
 
                 trainee = form.save(commit=False)
 
-                # Connect new Google user
-                trainee.user = user
+                # Connect user only if logged in
+                if user.is_authenticated:
+                    trainee.user = user
+
                 trainee.beneficiary_id = beneficiary_id
                 trainee.status = "Pending"
 
-                # Google email
-                if not trainee.email:
+                # Use Google user's email if logged in
+                # and trainee email was not entered
+                if user.is_authenticated and not trainee.email:
                     trainee.email = user.email
 
                 trainee.save()
 
                 # Create/update SkillTrack profile
-                UserProfile.objects.update_or_create(
-                    user=user,
-                    defaults={
-                        "role": "Trainee",
-                        "trainee": trainee,
-                    }
-                )
+                # ONLY for authenticated users
+                if user.is_authenticated:
+                    UserProfile.objects.update_or_create(
+                        user=user,
+                        defaults={
+                            "role": "Trainee",
+                            "trainee": trainee,
+                        }
+                    )
 
             messages.success(
                 request,
@@ -662,11 +670,13 @@ def trainee_register(request):
     )
 
 
+
+
 # ==========================================================
 # TRAINER REGISTRATION
 # ==========================================================
 
-@login_required
+
 def trainer_register(request):
 
     user = request.user
@@ -675,7 +685,7 @@ def trainer_register(request):
     profile = getattr(user, "userprofile", None)
 
     if profile and profile.role == "Trainer":
-        return redirect_for_user(user)
+        return redirect_for_user(user, request)
 
     form = TrainerRegistrationForm(
         request.POST or None
@@ -687,7 +697,7 @@ def trainer_register(request):
 
             trainer = form.save(commit=False)
 
-            # Use existing Google user
+
             trainer.user = user
             trainer.status = "Pending"
             trainer.email = user.email
@@ -861,6 +871,7 @@ def trainee_list(request):
     )
 
 
+
 @login_required
 @authority_required
 def trainee_detail(request, id):
@@ -869,6 +880,10 @@ def trainee_detail(request, id):
         Trainee,
         id=id
     )
+
+    # =====================================================
+    # BASIC TRAINEE DATA
+    # =====================================================
 
     trainings = (
         trainee.training_set
@@ -890,6 +905,24 @@ def trainee_detail(request, id):
         )
     )
 
+    # =====================================================
+    # AI DATA
+    # ONLY RUN FOR VERIFIED TRAINEES
+    # =====================================================
+
+    skill_gaps = []
+    risk = None
+
+    if trainee.status == "Verified":
+        skill_gaps = _skill_gaps(trainee)
+        risk = _risk_insight(trainee)
+
+
+
+    # =====================================================
+    # PAGE
+    # =====================================================
+
     return render(
         request,
         "trainees/trainee_detail.html",
@@ -897,22 +930,28 @@ def trainee_detail(request, id):
             "trainee": trainee,
             "trainings": trainings,
             "outcomes": outcomes,
+
             "wages":
                 trainee.wage_records.all(),
+
             "followups":
                 trainee.followup_set.all(),
+
             "retention_records":
                 trainee.retention_records
                 .all()
                 .order_by("-checked_on"),
+
             "relevance_records":
                 trainee.relevance_feedback
                 .select_related("training")
                 .all(),
+
             "skill_gaps":
-                _skill_gaps(trainee),
+                skill_gaps,
+
             "risk":
-                _risk_insight(trainee),
+                risk,
         }
     )
 
@@ -1148,30 +1187,17 @@ def verify_trainer(request, id):
         id=id
     )
 
-    user, created = User.objects.get_or_create(
-        username=trainer.email,
-        defaults={
-            "email": trainer.email
-        }
-    )
+    user = trainer.user
 
-    if created:
-
-        user.set_password(
-            f"Trainer@{trainer.phone[-4:]}"
+    if not user:
+        messages.error(
+            request,
+            "This trainer registration is not linked to a user account."
         )
-
-        user.save()
+        return redirect("trainer_detail", id=id)
 
     trainer.status = "Verified"
-    trainer.user = user
-
-    trainer.save(
-        update_fields=[
-            "status",
-            "user"
-        ]
-    )
+    trainer.save(update_fields=["status"])
 
     UserProfile.objects.update_or_create(
         user=user,
@@ -1181,19 +1207,19 @@ def verify_trainer(request, id):
         }
     )
 
-    notify(user, "Your trainer registration has been approved. You can now access your assigned batches.", "Registration")
+    notify(
+        user,
+        "Your trainer registration has been approved. "
+        "You can now access your assigned batches.",
+        "Registration"
+    )
 
     messages.success(
         request,
         "Trainer verified successfully."
     )
 
-    return redirect(
-        "trainer_detail",
-        id=id
-    )
-
-
+    return redirect("trainer_detail", id=id)
 @login_required
 @authority_required
 @require_POST
@@ -3847,7 +3873,7 @@ def analytics(request):
 
 def public_dashboard(request):
     if request.user.is_authenticated:
-        return redirect_for_user(request.user)
+        return redirect_for_user(request.user, request)
 
 
 
@@ -4034,15 +4060,15 @@ def ok(request):
 
 @login_required
 def google_login_success(request):
-    return redirect_for_user(request.user)
+    return redirect_for_user(request.user, request)
+
 @login_required
 def choose_role(request):
 
     profile = getattr(request.user, "userprofile", None)
 
-    # Already has a role
     if profile is not None and profile.role:
-        return redirect_for_user(request.user)
+        return redirect_for_user(request.user, request)
 
     if request.method == "POST":
 
@@ -4059,7 +4085,6 @@ def choose_role(request):
 
             if role == "Trainee":
 
-                # Generate beneficiary ID
                 last_trainee = (
                     Trainee.objects
                     .select_for_update()
@@ -4068,16 +4093,22 @@ def choose_role(request):
                 )
 
                 beneficiary_id = (
-                    f"MH-2026-{(last_trainee.id + 1 if last_trainee else 1):06d}"
+                    f"MH-2026-"
+                    f"{(last_trainee.id + 1 if last_trainee else 1):06d}"
                 )
 
-                trainee = Trainee.objects.create(
+                trainee, created = Trainee.objects.get_or_create(
                     user=request.user,
-                    beneficiary_id=beneficiary_id,
-                    name=request.user.get_full_name() or request.user.username,
-                    email=request.user.email,
-                    status="Pending",
-                    registration_date=date.today(),
+                    defaults={
+                        "beneficiary_id": beneficiary_id,
+                        "name": (
+                            request.user.get_full_name()
+                            or request.user.username
+                        ),
+                        "email": request.user.email,
+                        "status": "Pending",
+                        "registration_date": date.today(),
+                    }
                 )
 
                 UserProfile.objects.update_or_create(
@@ -4090,17 +4121,48 @@ def choose_role(request):
 
             elif role == "Trainer":
 
-                trainer = TrainerRegistration.objects.create(
-                    user=request.user,
-                    name=request.user.get_full_name() or request.user.username,
-                    email=request.user.email,
-                    status="Pending",
+                trainer, created = (
+                    TrainerRegistration.objects.get_or_create(
+                        user=request.user,
+                        defaults={
+                            "name": (
+                                request.user.get_full_name()
+                                or request.user.username
+                            ),
+                            "email": request.user.email,
+                            "status": "Pending",
+                            "registration_date": timezone.now().date(),
+                        }
+                    )
                 )
+
+                # Keep existing registration information synchronized.
+                if not created:
+                    trainer.email = request.user.email
+
+                    if not trainer.name:
+                        trainer.name = (
+                            request.user.get_full_name()
+                            or request.user.username
+                        )
+
+                    # Do NOT reset an already verified trainer.
+                    if trainer.status not in ["Verified"]:
+                        trainer.status = "Pending"
+
+                    trainer.save(
+                        update_fields=[
+                            "email",
+                            "name",
+                            "status",
+                        ]
+                    )
 
                 UserProfile.objects.update_or_create(
                     user=request.user,
                     defaults={
                         "role": "Trainer",
+                        "trainee": None,
                     }
                 )
 
@@ -4109,10 +4171,15 @@ def choose_role(request):
             "Registration submitted successfully. "
             "Your application is now pending Authority verification."
         )
+        if role == "Trainer":
+            return redirect("pending_page")
 
-        return redirect("pending_page")
+        return render(
+            request,
+            "trainees/registration_success.html"
+        )
 
     return render(request, "choose_role.html")
 @login_required
 def pending_page(request):
-    return render(request, "pending_page.html")
+    return render(request, "trainers/pending_page.html")

@@ -599,11 +599,7 @@ Login | SkillTrack Maharashtra
 
         {% load socialaccount %}
 
-<form method="post" action="{% provider_login_url 'google' %}">
-  {% csrf_token %}
-  <button type="submit">Continue with Google</button>
-</form>
-
+<form method="post" action="{% provider_login_url 'google' %}"> {% csrf_token %} <button type="submit" class="google-login-button"> <span class="google-icon"> G </span> <span>Continue with Google</span> </button> </form>
         <!-- REGISTRATION DIVIDER -->
 
         <div class="registration-divider">
