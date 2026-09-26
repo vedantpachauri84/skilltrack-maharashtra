@@ -4,88 +4,239 @@
     <title>Assign Trainees</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            padding: 30px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-
-        h1 {
+            background: #f3f5f8;
             color: #1f2937;
         }
 
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* =========================
+           CARD
+        ========================== */
+
+        .card {
+            background: #ffffff;
+            padding: 28px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+        }
+
+        /* =========================
+           HEADER
+        ========================== */
+
+        h1 {
+            margin: 0 0 20px;
+            color: #172554;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        h2 {
+            margin: 0 0 18px;
+            color: #1e293b;
+            font-size: 21px;
+        }
+
+        /* =========================
+           BATCH INFORMATION
+        ========================== */
+
         .batch-info {
-            color: #6b7280;
-            line-height: 1.7;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 25px;
+            color: #475569;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .batch-info strong {
+            color: #334155;
+        }
+
+        /* =========================
+           TRAINEE LIST
+        ========================== */
+
+        .trainee-list {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .trainee {
             display: flex;
             align-items: center;
-            padding: 14px;
-            border-bottom: 1px solid #eee;
-            gap: 12px;
+            padding: 16px 18px;
+            border-bottom: 1px solid #edf0f3;
+            gap: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
 
         .trainee:last-child {
             border-bottom: none;
         }
 
+        .trainee:hover {
+            background: #f8fafc;
+        }
+
         .trainee input {
             width: 18px;
             height: 18px;
+            accent-color: #1d4ed8;
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         .name {
-            font-weight: bold;
-            color: #111827;
+            font-weight: 700;
+            color: #172554;
+            font-size: 15px;
         }
 
         .details {
-            color: #6b7280;
-            font-size: 14px;
-            margin-top: 4px;
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
         }
+
+        /* =========================
+           BUTTON
+        ========================== */
 
         button {
             margin-top: 20px;
-            padding: 11px 20px;
+            padding: 12px 22px;
             border: none;
-            border-radius: 7px;
-            background: #2563eb;
+            border-radius: 8px;
+            background: #1d4ed8;
             color: white;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         button:hover {
-            background: #1d4ed8;
+            background: #1e40af;
+            transform: translateY(-1px);
         }
+
+        /* =========================
+           BACK LINK
+        ========================== */
 
         .back {
-            display: inline-block;
-            margin-top: 18px;
-            color: #2563eb;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 20px;
+            color: #1d4ed8;
             text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
         }
 
+        .back:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================== */
+
         .empty {
-            color: #6b7280;
+            color: #64748b;
             text-align: center;
-            padding: 20px;
+            padding: 35px 20px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* =========================
+           ASSIGNED TRAINEES
+        ========================== */
+
+        .assigned-section {
+            margin-top: 24px;
+            padding-top: 22px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .assigned-section h2 {
+            margin-bottom: 12px;
+        }
+
+        .progress-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 17px;
+            background: #166534;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: background 0.2s ease;
+        }
+
+        .progress-link:hover {
+            background: #14532d;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 700px) {
+
+            .container {
+                margin: 20px auto;
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .batch-info {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .trainee {
+                padding: 14px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .progress-link {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -94,21 +245,48 @@
 
 <div class="container">
 
+    <!-- =========================
+         BATCH INFORMATION
+    ========================== -->
+
     <div class="card">
 
         <h1>Assign Trainees</h1>
 
         <div class="batch-info">
-            <strong>Batch:</strong> {{ batch.name }}<br>
-            <strong>Course:</strong> {{ batch.course.name }}<br>
-            <strong>Provider:</strong> {{ batch.provider.name }}<br>
-            <strong>Trainer:</strong> {{ batch.trainer.username }}<br>
-            <strong>District:</strong> {{ batch.district }}<br>
-            <strong>Capacity:</strong> {{ batch.capacity }}
+
+            <div>
+                <strong>Batch:</strong> {{ batch.name }}
+            </div>
+
+            <div>
+                <strong>Course:</strong> {{ batch.course.name }}
+            </div>
+
+            <div>
+                <strong>Provider:</strong> {{ batch.provider.name }}
+            </div>
+
+            <div>
+                <strong>Trainer:</strong> {{ batch.trainer.username }}
+            </div>
+
+            <div>
+                <strong>District:</strong> {{ batch.district }}
+            </div>
+
+            <div>
+                <strong>Capacity:</strong> {{ batch.capacity }}
+            </div>
+
         </div>
 
     </div>
 
+
+    <!-- =========================
+         TRAINEE SELECTION
+    ========================== -->
 
     <div class="card">
 
@@ -118,42 +296,49 @@
 
             {% csrf_token %}
 
-            {% for trainee in verified_trainees %}
+            <div class="trainee-list">
 
-                <label class="trainee">
+                {% for trainee in verified_trainees %}
 
-                    <input
-                        type="checkbox"
-                        name="trainees"
-                        value="{{ trainee.id }}"
-                        {% if trainee in batch.trainees.all %}
-                            checked
-                        {% endif %}
-                    >
+                    <label class="trainee">
 
-                    <div>
+                        <input
+                            type="checkbox"
+                            name="trainees"
+                            value="{{ trainee.id }}"
+                            {% if trainee in batch.trainees.all %}
+                                checked
+                            {% endif %}
+                        >
 
-                        <div class="name">
-                            {{ trainee.name }}
+                        <div>
+
+                            <div class="name">
+                                {{ trainee.name }}
+                            </div>
+
+                            <div class="details">
+                                Beneficiary ID:
+                                {{ trainee.beneficiary_id }}
+                                &nbsp; | &nbsp;
+                                District:
+                                {{ trainee.district }}
+                            </div>
+
                         </div>
 
-                        <div class="details">
-                            Beneficiary ID: {{ trainee.beneficiary_id }}
-                            |
-                            District: {{ trainee.district }}
-                        </div>
+                    </label>
 
+                {% empty %}
+
+                    <div class="empty">
+                        No verified trainees are available.
                     </div>
 
-                </label>
+                {% endfor %}
 
-            {% empty %}
+            </div>
 
-                <div class="empty">
-                    No verified trainees are available.
-                </div>
-
-            {% endfor %}
 
             {% if verified_trainees %}
 
@@ -165,6 +350,7 @@
 
         </form>
 
+
         <a
             href="{% url 'batch_list' %}"
             class="back"
@@ -172,12 +358,27 @@
             ← Back to Training Batches
         </a>
 
+
+        <!-- =========================
+             ASSIGNED TRAINEES
+        ========================== -->
+
+        <div class="assigned-section">
+
+            <h2>Assigned Trainees</h2>
+
+            <a
+                href="{% url 'trainer_batch_progress' batch.id %}"
+                class="progress-link"
+            >
+                Update Attendance &amp; Progress →
+            </a>
+
+        </div>
+
     </div>
 
 </div>
-<h2>Assigned Trainees</h2>
-<a href="{% url 'trainer_batch_progress' batch.id %}">
-    Update Attendance & Progress
-</a>
+
 </body>
 </html>
