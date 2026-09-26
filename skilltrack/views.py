@@ -256,7 +256,7 @@ def _risk_insight(trainee):
     # ---------------------------------------------------------
     try:
         response = requests.post(
-            "https://skillpredict-ai.onrender.com/predict",
+            "https://mlapi-7kho.onrender.com/predict",
             json=payload,
             timeout=30,
         )
