@@ -3701,6 +3701,10 @@ def outcome_support(request, id):
 @authority_required
 def analytics(request):
 
+    # --------------------------------------------------
+    # EMPLOYMENT OUTCOMES
+    # --------------------------------------------------
+
     outcomes = (
         Employment.objects
         .select_related(
@@ -3710,38 +3714,89 @@ def analytics(request):
         )
     )
 
-    district = request.GET.get(
-        "district"
-    )
+    district = request.GET.get("district")
+    course = request.GET.get("course")
 
-    course = request.GET.get(
-        "course"
-    )
-
+    # Apply filters to employment outcomes
     if district:
-
         outcomes = outcomes.filter(
             trainee__district=district
         )
 
     if course:
-
         outcomes = outcomes.filter(
             training__course_id=course
         )
 
+    # --------------------------------------------------
+    # COMPLETED TRAINING
+    # --------------------------------------------------
+
     completed = (
         Training.objects
         .filter(status="Completed")
+        .select_related(
+            "trainee",
+            "course",
+            "provider"
+        )
     )
 
-    retention_stats = RetentionRecord.objects.aggregate(
-        retained=Count("id", filter=Q(still_employed=True)),
+    # Training has a direct trainee field
+    if district:
+        completed = completed.filter(
+            trainee__district=district
+        )
+
+    if course:
+        completed = completed.filter(
+            course_id=course
+        )
+
+    # --------------------------------------------------
+    # RETENTION
+    # --------------------------------------------------
+
+    retention_records = RetentionRecord.objects.all()
+
+    # RetentionRecord is filtered through its trainee.
+    if district:
+        retention_records = retention_records.filter(
+            trainee__district=district
+        )
+
+    # Do NOT use trainee__trainings__course_id here,
+    # because the reverse relationship name is not confirmed.
+    #
+    # Instead, if a course is selected, get the trainees
+    # belonging to that course through Training.
+
+    if course:
+        trainee_ids = (
+            Training.objects
+            .filter(course_id=course)
+            .values_list("trainee_id", flat=True)
+            .distinct()
+        )
+
+        retention_records = retention_records.filter(
+            trainee_id__in=trainee_ids
+        )
+
+    retention_stats = retention_records.aggregate(
+        retained=Count(
+            "id",
+            filter=Q(still_employed=True)
+        ),
         total=Count("id"),
     )
 
-    retained = retention_stats["retained"]
-    retention_total = retention_stats["total"]
+    retained = retention_stats["retained"] or 0
+    retention_total = retention_stats["total"] or 0
+
+    # --------------------------------------------------
+    # PLACEMENT
+    # --------------------------------------------------
 
     placement = (
         outcomes
@@ -3749,8 +3804,12 @@ def analytics(request):
         .count()
     )
 
+    # --------------------------------------------------
+    # AVERAGE WAGE
+    # --------------------------------------------------
+
     wage_avg = (
-        Employment.objects
+        outcomes
         .filter(
             status="Employed",
             salary__isnull=False
@@ -3760,6 +3819,10 @@ def analytics(request):
         )["avg"]
         or 0
     )
+
+    # --------------------------------------------------
+    # COMMON SKILL GAPS
+    # --------------------------------------------------
 
     common_gaps = (
         TrainingRelevance.objects
@@ -3773,96 +3836,93 @@ def analytics(request):
         .order_by("-total")[:5]
     )
 
+    # --------------------------------------------------
+    # RETENTION RATE
+    # --------------------------------------------------
+
+    retention_rate = (
+        round(
+            retained * 100 / retention_total
+        )
+        if retention_total
+        else None
+    )
+
+    # --------------------------------------------------
+    # RESPONSE
+    # --------------------------------------------------
+
     return render(
         request,
         "analytics.html",
         {
-            "course_data":
-                list(
-                    completed
-                    .values(
-                        "course__name"
-                    )
-                    .annotate(
-                        total=Count("id")
-                    )
-                    .order_by(
-                        "course__name"
-                    )
-                ),
+            # Course-wise completed training
+            "course_data": list(
+                completed
+                .values("course__name")
+                .annotate(
+                    total=Count("id")
+                )
+                .order_by("course__name")
+            ),
 
-            "provider_data":
-                list(
-                    completed
-                    .values(
-                        "provider__name"
-                    )
-                    .annotate(
-                        total=Count("id")
-                    )
-                    .order_by(
-                        "provider__name"
-                    )
-                ),
+            # Provider-wise completed training
+            "provider_data": list(
+                completed
+                .values("provider__name")
+                .annotate(
+                    total=Count("id")
+                )
+                .order_by("provider__name")
+            ),
 
-            "employment_data":
-                list(
-                    outcomes
-                    .values("status")
-                    .annotate(
-                        total=Count("id")
-                    )
-                ),
+            # Employment outcomes
+            "employment_data": list(
+                outcomes
+                .values("status")
+                .annotate(
+                    total=Count("id")
+                )
+            ),
 
-            "district_data":
-                list(
-                    outcomes
-                    .values(
-                        "trainee__district"
-                    )
-                    .annotate(
-                        total=Count("id")
-                    )
-                ),
+            # District-wise employment outcomes
+            "district_data": list(
+                outcomes
+                .values("trainee__district")
+                .annotate(
+                    total=Count("id")
+                )
+                .order_by("trainee__district")
+            ),
 
-            "placement":
-                placement,
+            # Summary metrics
+            "placement": placement,
 
-            "outcomes_total":
-                outcomes.count(),
+            "outcomes_total": outcomes.count(),
 
-            "average_wage":
-                round(wage_avg),
+            "average_wage": round(wage_avg),
 
-            "retention_rate":
-                (
-                    round(
-                        retained
-                        * 100
-                        / retention_total
-                    )
-                    if retention_total
-                    else 0
-                ),
+            "retention_rate": retention_rate,
 
-            "common_gaps":
-                common_gaps,
+            # Skill gaps
+            "common_gaps": common_gaps,
 
-            "districts":
-                (
-                    Trainee.objects
-                    .values_list(
-                        "district",
-                        flat=True
-                    )
-                    .distinct()
-                    .order_by("district")
-                ),
+            # Filter options
+            "districts": (
+                Trainee.objects
+                .values_list(
+                    "district",
+                    flat=True
+                )
+                .distinct()
+                .order_by("district")
+            ),
 
-            "courses":
+            "courses": (
                 Course.objects
                 .all()
-                .order_by("name"),
+                .order_by("name")
+            ),
         }
     )
 
